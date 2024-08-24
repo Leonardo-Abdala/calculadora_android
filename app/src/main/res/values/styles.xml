@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="btnNumerico" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">50sp</item>
+    </style>
+</resources>
