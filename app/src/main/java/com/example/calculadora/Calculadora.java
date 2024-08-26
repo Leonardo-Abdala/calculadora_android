@@ -21,6 +21,11 @@ public class Calculadora {
     private double numero;
     private Deque<Double> operandos;
     private int modo = MODO_EXIBINDO;
+    private double pv = 0.0;
+    private double fv = 0.0;
+    private double pmt = 0.0;
+    private double i = 0.0;
+    private double n = 0.0;
 
     public Calculadora() {
         numero = 0;
@@ -82,4 +87,94 @@ public class Calculadora {
         }
         executarOperacao((op1, op2) -> op2 / op1);
     }
+
+    public double calcularJurosCompostos(){
+        fv = Math.pow(pv * (1+i), n);
+        return fv;
+    }
+
+    public void setPV(double numero){
+        if(fv == 0.0 || i == 0.0 || n == 0.0){
+            pv = numero;
+            modo = MODO_EXIBINDO;
+        }else{
+            if(modo == MODO_EXIBINDO){
+                modo = MODO_EDITANDO;
+                pv = fv/Math.pow((1+i), n);
+            }else{
+                modo = MODO_ERRO;
+            }
+        }
+
+
+    }
+
+    public void setFV(double numero){
+        if(pv == 0.0 || i == 0.0 || n == 0.0){
+            fv = numero;
+            modo = MODO_EXIBINDO;
+        }else{
+            if(modo == MODO_EXIBINDO){
+                modo = MODO_EDITANDO;
+                fv = Math.pow(pv * (1+i), n);
+            }else{
+                modo = MODO_ERRO;
+            }
+
+        }
+    }
+
+    public void setPMT(double numero){
+        pmt = numero;
+    }
+
+    public void setI(double numero){
+        if(pv == 0.0 || fv == 0.0 || n == 0.0){
+            i = numero;
+            modo = MODO_EXIBINDO;
+        }else{
+            if(modo == MODO_EXIBINDO){
+                modo = MODO_EDITANDO;
+                i = Math.pow((fv/pv), 1/n) - 1;
+            }else{
+                modo = MODO_ERRO;
+            }
+        }
+    }
+
+    public void setN(double numero){
+        if(pv == 0.0 || fv == 0.0 || i == 0.0){
+            n = numero;
+            modo = MODO_EXIBINDO;
+        }else{
+            if(modo == MODO_EXIBINDO){
+                modo = MODO_EDITANDO;
+                n = Math.log(fv / pv) / Math.log(1 + i);
+            }else{
+                modo = MODO_ERRO;
+            }
+
+        }
+    }
+
+    public double getPV() {
+        return pv;
+    }
+
+    public double getFV() {
+        return fv;
+    }
+
+    public double getPMT() {
+        return pmt;
+    }
+
+    public double getI() {
+        return i;
+    }
+
+    public double getN() {
+        return n;
+    }
+
 }

@@ -1,7 +1,12 @@
 package com.example.calculadora;
 
+import static android.text.Selection.getSelectionStart;
+
+import android.app.Activity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.example.calculadora.Calculadora;
@@ -17,7 +22,11 @@ public class ActivityCalculadora extends AppCompatActivity {
     private Calculadora calculadora;
     private String visor;
     private TextView textViewVisor;
-    private boolean zerarVisor;
+    private boolean zerarVisor; // Usada para quando o usuário "seta" um valor e depois precisa ser apagado o número que estava no visor
+    private boolean numerosDepoisDoPonto;
+    private StringBuilder stringBuilderVisor;
+    private boolean excluirZero; //depois do usuário excluir todos os números, será atribuído o valor 0 somente para exibir, mas na hora que for digitado um número, esse será o primeiro valor
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,8 +37,11 @@ public class ActivityCalculadora extends AppCompatActivity {
         calculadora = new Calculadora();
         visor = "0.0";
         zerarVisor = true;
+        numerosDepoisDoPonto = false;
+        excluirZero = false;
         textViewVisor = findViewById(R.id.editTextNumber);
         textViewVisor.setText(visor);
+        textViewVisor.setInputType(InputType.TYPE_NULL); // ocultar teclado virtual
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -43,7 +55,11 @@ public class ActivityCalculadora extends AppCompatActivity {
             visor = "0.0";
             zerarVisor = false;
         }else{
-            visor = 0 + visor ;
+            if(numerosDepoisDoPonto){
+                inserirNumeroDepoisPonto(0);
+            }else{
+                inserirNumeroAntesPonto(0);
+            }
         }
 
         textViewVisor.setText(visor);
@@ -54,7 +70,11 @@ public class ActivityCalculadora extends AppCompatActivity {
             visor = "1.0";
             zerarVisor = false;
         }else{
-            visor = 1 + visor;
+            if(numerosDepoisDoPonto){
+                inserirNumeroDepoisPonto(1);
+            }else{
+                inserirNumeroAntesPonto(1);
+            }
         }
         textViewVisor.setText(visor);
     }
@@ -64,7 +84,11 @@ public class ActivityCalculadora extends AppCompatActivity {
             visor = "2.0";
             zerarVisor = false;
         }else{
-            visor = 2 + visor;
+            if(numerosDepoisDoPonto){
+                inserirNumeroDepoisPonto(2);
+            }else{
+                inserirNumeroAntesPonto(2);
+            }
         }
         textViewVisor.setText(visor);
     }
@@ -74,7 +98,11 @@ public class ActivityCalculadora extends AppCompatActivity {
             visor = "3.0";
             zerarVisor = false;
         }else{
-            visor = 3 + visor;
+            if(numerosDepoisDoPonto){
+                inserirNumeroDepoisPonto(3);
+            }else{
+                inserirNumeroAntesPonto(3);
+            }
         }
         textViewVisor.setText(visor);
     }
@@ -84,7 +112,11 @@ public class ActivityCalculadora extends AppCompatActivity {
             visor = "4.0";
             zerarVisor = false;
         }else{
-            visor = 4 + visor;
+            if(numerosDepoisDoPonto){
+                inserirNumeroDepoisPonto(4);
+            }else{
+                inserirNumeroAntesPonto(4);
+            }
         }
         textViewVisor.setText(visor);
     }
@@ -94,7 +126,11 @@ public class ActivityCalculadora extends AppCompatActivity {
             visor = "5.0";
             zerarVisor = false;
         }else{
-            visor = 5 + visor;
+            if(numerosDepoisDoPonto){
+                inserirNumeroDepoisPonto(5);
+            }else{
+                inserirNumeroAntesPonto(5);
+            }
         }
         textViewVisor.setText(visor);
     }
@@ -104,7 +140,11 @@ public class ActivityCalculadora extends AppCompatActivity {
             visor = "6.0";
             zerarVisor = false;
         }else{
-            visor = 6 + visor;
+            if(numerosDepoisDoPonto){
+                inserirNumeroDepoisPonto(6);
+            }else{
+                inserirNumeroAntesPonto(6);
+            }
         }
         textViewVisor.setText(visor);
     }
@@ -114,7 +154,11 @@ public class ActivityCalculadora extends AppCompatActivity {
             visor = "7.0";
             zerarVisor = false;
         }else{
-            visor = 7 + visor;
+            if(numerosDepoisDoPonto){
+                inserirNumeroDepoisPonto(7);
+            }else{
+                inserirNumeroAntesPonto(7);
+            }
         }
         textViewVisor.setText(visor);
     }
@@ -124,7 +168,11 @@ public class ActivityCalculadora extends AppCompatActivity {
             visor = "8.0";
             zerarVisor = false;
         }else{
-            visor = 8 + visor;
+            if(numerosDepoisDoPonto){
+                inserirNumeroDepoisPonto(8);
+            }else{
+                inserirNumeroAntesPonto(8);
+            }
         }
         textViewVisor.setText(visor);
     }
@@ -134,18 +182,21 @@ public class ActivityCalculadora extends AppCompatActivity {
             visor = "9.0";
             zerarVisor = false;
         }else{
-            visor = 9 + visor;
+            if(numerosDepoisDoPonto){
+                inserirNumeroDepoisPonto(9);
+            }else{
+                inserirNumeroAntesPonto(9);
+            }
         }
-        textViewVisor.setText(visor);
+        atualizarVisor();
     }
 
     public void setEnter(View view){
-        double numero = Double.parseDouble(textViewVisor.getText().toString());
-        calculadora.setNumero(numero);
         calculadora.enter();
         visor = String.valueOf(calculadora.getNumero());
         textViewVisor.setText(visor);
         zerarVisor = true;
+        semNumerosDepoisPonto();
     }
 
     public void setSoma(View view){
@@ -156,6 +207,7 @@ public class ActivityCalculadora extends AppCompatActivity {
         visor = String.valueOf(calculadora.getNumero());
         textViewVisor.setText(visor);
         zerarVisor = true;
+        semNumerosDepoisPonto();
 
     }
 
@@ -167,6 +219,7 @@ public class ActivityCalculadora extends AppCompatActivity {
         visor = String.valueOf(calculadora.getNumero());
         textViewVisor.setText(visor);
         zerarVisor = true;
+        semNumerosDepoisPonto();
     }
 
     public void setMultiplicacao(View view){
@@ -177,6 +230,7 @@ public class ActivityCalculadora extends AppCompatActivity {
         visor = String.valueOf(calculadora.getNumero());
         textViewVisor.setText(visor);
         zerarVisor = true;
+        semNumerosDepoisPonto();
 
     }
 
@@ -188,10 +242,101 @@ public class ActivityCalculadora extends AppCompatActivity {
         visor = String.valueOf(calculadora.getNumero());
         textViewVisor.setText(visor);
         zerarVisor = true;
+        semNumerosDepoisPonto();
     }
 
     public void clear(View view){
         textViewVisor.setText("0.0");
+        zerarVisor = true;
+        semNumerosDepoisPonto();
+    }
+
+    public void setPonto(View view){
+        numerosDepoisDoPonto = true;
+        visor = visor.substring(0, visor.length() - 1);
+    }
+
+    public void semNumerosDepoisPonto(){
+        numerosDepoisDoPonto = false;
+    }
+
+    private void atualizarVisor(){
+        textViewVisor.setText(visor);
+    }
+
+    private void inserirNumeroAntesPonto(int numero){
+        stringBuilderVisor = new StringBuilder(visor);
+        if(excluirZero){
+            stringBuilderVisor.replace(visor.indexOf(".")-1,visor.indexOf("."), String.valueOf(numero));
+            excluirZero = false;
+        }else{
+            stringBuilderVisor.insert(visor.indexOf("."), numero);
+        }
+
+        calculadora.setNumero(numero);
+        visor = stringBuilderVisor.toString();
+    }
+
+    private void inserirNumeroDepoisPonto(int numero){
+        stringBuilderVisor = new StringBuilder(visor);
+        if(excluirZero){
+            stringBuilderVisor.replace(visor.indexOf(".")+1,visor.indexOf(".")+2, String.valueOf(numero));
+            excluirZero = false;
+        }else{
+            stringBuilderVisor.insert(visor.length(), numero);
+        }
+        calculadora.setNumero(numero);
+        visor = stringBuilderVisor.toString();
+    }
+
+    public void apagarNumero(View view){
+        stringBuilderVisor = new StringBuilder(visor);
+        if(numerosDepoisDoPonto){
+            if(stringBuilderVisor.substring(visor.indexOf(".")+1).length() == 1){ // caso seja 1, significa que só existe mais um número depois do ponto, logo para não deixar um vazio, deve-se substituir por 0
+                stringBuilderVisor.replace(visor.indexOf(".")+1, visor.indexOf(".")+2, "0");
+                excluirZero = true;
+            }else{
+                stringBuilderVisor.delete(visor.indexOf(".")+1,visor.indexOf(".")+2);
+            }
+        }else{
+            if(stringBuilderVisor.substring(0, visor.indexOf(".")).length() == 1){ // caso seja 1, significa que só existe mais um número antes do ponto, logo para não deixar um vazio, deve-se substituir por 0
+                stringBuilderVisor.replace(visor.indexOf(".")-1, visor.indexOf("."), "0");
+                excluirZero = true;
+            }else{
+                stringBuilderVisor.delete(visor.indexOf(".")-1, visor.indexOf("."));
+            }
+        }
+
+        visor = stringBuilderVisor.toString();
+        atualizarVisor();
+
+    }
+
+    public void definirPv(View view){
+        calculadora.setPV(Double.parseDouble(textViewVisor.getText().toString()));
+        visor = String.valueOf(calculadora.getPV());
+        textViewVisor.setText(visor);
+        zerarVisor = true;
+    }
+
+    public void definirFv(View view){
+        calculadora.setFV(Double.parseDouble(textViewVisor.getText().toString()));
+        visor = String.valueOf(calculadora.getFV());
+        textViewVisor.setText(visor);
+        zerarVisor = true;
+    }
+
+    public void definirI(View view){
+        calculadora.setI(Double.parseDouble(textViewVisor.getText().toString()));
+        visor = String.valueOf(calculadora.getI());
+        textViewVisor.setText(visor);
+        zerarVisor = true;
+    }
+
+    public void definirN(View view){
+        calculadora.setN(Double.parseDouble(textViewVisor.getText().toString()));
+        visor = String.valueOf(calculadora.getN());
+        textViewVisor.setText(visor);
         zerarVisor = true;
     }
 }
