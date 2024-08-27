@@ -26,6 +26,7 @@ public class Calculadora {
     private double pmt = 0.0;
     private double i = 0.0;
     private double n = 0.0;
+    private boolean feitoCalculo = false;
 
     public Calculadora() {
         numero = 0;
@@ -69,7 +70,7 @@ public class Calculadora {
     }
 
     public void subtracao() {
-        executarOperacao((op1, op2) -> op1 - op2);
+        executarOperacao((op1, op2) ->  op2 - op1 );
     }
 
     public void multiplicacao() {
@@ -88,40 +89,70 @@ public class Calculadora {
         executarOperacao((op1, op2) -> op2 / op1);
     }
 
-    public double calcularJurosCompostos(){
-        fv = Math.pow(pv * (1+i), n);
-        return fv;
+    public void calcularJurosCompostos(int encontrar){
+        if (modo == MODO_ERRO) {
+            modo = MODO_EXIBINDO;
+        }
+
+        if(!feitoCalculo){ // significa que ainda não foi calculado os juros depois que um ou mais valores foram alterados
+            switch (encontrar){
+            /*
+            0 encontrar PV
+            1 encontrar FV
+            2 encontrar i
+            3 encontrar n
+            4 encontrar PMT
+            */
+
+                case 0:
+                    pv = fv/Math.pow(1+i/100, n);
+                    feitoCalculo = true;
+                    break;
+
+                case 1:
+                    fv = pv * (Math.pow(1+i/100, n));
+                    feitoCalculo = true;
+                    break;
+
+                case 2:
+                    i = Math.pow((fv/pv), 1/n) - 1;
+                    feitoCalculo = true;
+                    break;
+
+                case 3:
+                    n = Math.log(fv / pv) / Math.log(1 + i/100);
+                    feitoCalculo = true;
+                    break;
+
+                case 4:
+                    pmt = (pv*i/100)/(1-Math.pow((1+i/100),-n));
+                    feitoCalculo = true;
+                    break;
+
+                case 5:
+                    n = (Math.log(pmt / (pmt - pv * i/100))/Math.log(1 + i/100));
+                    feitoCalculo = true;
+                    break;
+
+                case 6:
+                    pv = (pmt * (1 - Math.pow(1 + i/100, -n))) / (i/100);
+                    feitoCalculo = true;
+                    break;
+            }
+        }
+
     }
 
     public void setPV(double numero){
-        if(fv == 0.0 || i == 0.0 || n == 0.0){
-            pv = numero;
-            modo = MODO_EXIBINDO;
-        }else{
-            if(modo == MODO_EXIBINDO){
-                modo = MODO_EDITANDO;
-                pv = fv/Math.pow((1+i), n);
-            }else{
-                modo = MODO_ERRO;
-            }
-        }
-
-
+        pv = numero;
+        modo = MODO_EXIBINDO;
+        feitoCalculo = false;
     }
 
     public void setFV(double numero){
-        if(pv == 0.0 || i == 0.0 || n == 0.0){
-            fv = numero;
-            modo = MODO_EXIBINDO;
-        }else{
-            if(modo == MODO_EXIBINDO){
-                modo = MODO_EDITANDO;
-                fv = Math.pow(pv * (1+i), n);
-            }else{
-                modo = MODO_ERRO;
-            }
-
-        }
+        fv = numero;
+        modo = MODO_EXIBINDO;
+        feitoCalculo = false;
     }
 
     public void setPMT(double numero){
@@ -129,32 +160,15 @@ public class Calculadora {
     }
 
     public void setI(double numero){
-        if(pv == 0.0 || fv == 0.0 || n == 0.0){
-            i = numero;
-            modo = MODO_EXIBINDO;
-        }else{
-            if(modo == MODO_EXIBINDO){
-                modo = MODO_EDITANDO;
-                i = Math.pow((fv/pv), 1/n) - 1;
-            }else{
-                modo = MODO_ERRO;
-            }
-        }
+        i = numero;
+        modo = MODO_EXIBINDO;
+        feitoCalculo = false;
     }
 
     public void setN(double numero){
-        if(pv == 0.0 || fv == 0.0 || i == 0.0){
-            n = numero;
-            modo = MODO_EXIBINDO;
-        }else{
-            if(modo == MODO_EXIBINDO){
-                modo = MODO_EDITANDO;
-                n = Math.log(fv / pv) / Math.log(1 + i);
-            }else{
-                modo = MODO_ERRO;
-            }
-
-        }
+        n = numero;
+        modo = MODO_EXIBINDO;
+        feitoCalculo = false;
     }
 
     public double getPV() {
